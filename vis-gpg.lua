@@ -7,11 +7,27 @@ local function splitext(file)
 	return file:sub(0, -(i + 1)), file:sub(-i)
 end
 
+local function errpipe(file, cmd, p)
+	local r = {start = 0, finish = 0}
+	if file ~= nil then
+		r = {start = 0, finish = file.size}
+	else
+		file = vis.win.file
+	end
+
+	local err, ostr, estr = vis:pipe(file, r, cmd)
+	if p == true and err ~= 0 and estr ~= nil then
+		vis:message(estr)
+	end
+
+	return err, ostr, estr
+end
+
 local function decrypt(file)
 	local f, e = splitext(file.name)
 	if e ~= '.gpg' then return end
 
-	local err, ostr, estr = vis:pipe(file, {start = 0, finish = file.size}, "gpg -d")
+	local err, ostr, estr = errpipe(file, "gpg -d", false)
 	if err ~= 0 then return false end
 
 	local i = estr:find("ID")
@@ -30,7 +46,7 @@ end
 vis.events.subscribe(vis.events.FILE_OPEN, decrypt)
 vis.events.subscribe(vis.events.FILE_SAVE_POST, decrypt)
 
-local function encrypt(file, path)
+local function encrypt(file)
 	local f, e = splitext(file.name)
 	if e ~= '.gpg' then return end
 
@@ -41,13 +57,8 @@ local function encrypt(file, path)
 
 	local tfn = os.tmpname()
 	local cmd = "gpg --yes -o " .. tfn .. " -e -r " .. gpg.key
-	local err, ostr, estr = vis:pipe(file, {start = 0, finish = file.size}, cmd)
-	if err ~= 0 then
-		if estr then
-			vis:message(estr)
-		end
-		return false
-	end
+	local err = errpipe(file, cmd, true)
+	if err ~= 0 then return false end
 
 	local tf = io.open(tfn, 'rb')
 	file:delete(0, file.size)
