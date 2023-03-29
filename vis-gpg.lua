@@ -1,4 +1,4 @@
-gpg = { key = 0 }
+local gpg = { key = 0 }
 
 local function splitext(file)
 	if file == nil then return nil, nil end
@@ -69,3 +69,5 @@ local function encrypt(file)
 	return true
 end
 vis.events.subscribe(vis.events.FILE_SAVE_PRE, encrypt)
+
+return gpg
