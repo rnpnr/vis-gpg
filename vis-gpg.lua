@@ -70,4 +70,8 @@ local function encrypt(file)
 end
 vis.events.subscribe(vis.events.FILE_SAVE_PRE, encrypt)
 
+vis:command_register("gpg-key", function()
+	vis:info("gpg-key: " .. gpg.key)
+end, "Echo the currently set key ID")
+
 return gpg
