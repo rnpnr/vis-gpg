@@ -8,14 +8,7 @@ local function splitext(file)
 end
 
 local function errpipe(file, cmd, p)
-	local r = {start = 0, finish = 0}
-	if file ~= nil then
-		r = {start = 0, finish = file.size}
-	else
-		file = vis.win.file
-	end
-
-	local err, ostr, estr = vis:pipe(file, r, cmd)
+	local err, ostr, estr = vis:pipe(file, {start = 0, finish = file.size}, cmd)
 	if p == true and err ~= 0 and estr ~= nil then
 		vis:message(estr)
 	end
