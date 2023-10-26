@@ -55,7 +55,7 @@ local function encrypt(file)
 
 	local tf = io.open(tfn, 'rb')
 	file:delete(0, file.size)
-	file:insert(0, tf:read("a"))
+	file:insert(0, tf:read("*a"))
 	tf:close()
 	os.remove(tfn)
 
